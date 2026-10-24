@@ -1,0 +1,159 @@
+================================================================
+ NETBOND - SETUP INSTRUCTIONS
+ Bond USB tethering + Wi-Fi + Ethernet into one internet connection
+ Version 1.0.0 - Windows 10/11 - no third-party packages
+================================================================
+
+WHERE THE FILES ARE
+
+  E:\NetBond\            the complete application (upload this to GitHub)
+    netbond\              the application code (8 Python modules)
+    tests\                verification tests (optional, for checking a build)
+    NetBond.pyw           double-click launcher (starts without a console)
+    README.md             full documentation
+    GITHUB.md             how to upload the project to GitHub
+    .gitignore            keeps caches and build files out of the repository
+
+
+---------------------------------------------------------------
+ SETTING UP ON THIS PC (or any Windows PC you transfer it to)
+---------------------------------------------------------------
+
+STEP 1 - Get Python 3.10 or newer (skip if python --version already works)
+
+  1. Download from  https://www.python.org/downloads/
+  2. Run the setup program and TICK "Add python.exe to PATH" (very important)
+  3. Click the finish button and wait for it to complete
+
+  Check it worked - open a command prompt and type:
+
+      python --version
+
+  You should see something like: Python 3.12.7
+
+
+STEP 2 - Put the NetBond folder anywhere permanent
+
+  Move the whole NetBond folder to the target machine, for example:
+
+      C:\Users\<you>\NetBond
+
+  Do NOT keep it in a temporary place (Downloads folder, a USB stick you
+  will unplug, etc.) - pick a permanent home for it.
+
+
+STEP 3 - Start the application
+
+  Method A (simplest):  double-click  NetBond.pyw
+
+  Method B (from a terminal):
+
+      cd C:\Users\<you>\NetBond
+      python -m netbond
+
+  Method C (custom ports):
+
+      python -m netbond --http-port 8811 --socks-port 8812
+
+
+STEP 4 - Create a desktop shortcut (optional but handy)
+
+  Easiest: right-click  NetBond.pyw  ->  Send to  ->  Desktop (create
+  shortcut), then rename it "NetBond" if you like.
+
+  Or run this once in PowerShell (adjust the pythonw path if yours is
+  somewhere else):
+
+      $py = "C:\Users\<you>\AppData\Local\Programs\Python\Python312\pythonw.exe"
+      $s = (New-Object -ComObject WScript.Shell).CreateShortcut("$env:USERPROFILE\Desktop\NetBond.lnk")
+      $s.TargetPath = $py
+      $s.Arguments = """C:\Users\<you>\NetBond\NetBond.pyw"""
+      $s.WorkingDirectory = "C:\Users\<you>\NetBond"
+      $s.Description = "Bond all internet links into one"
+      $s.Save()
+
+  (Replace <you> with your Windows user name.)
+
+
+---------------------------------------------------------------
+ HOW TO USE IT
+---------------------------------------------------------------
+
+  1. Start NetBond. The dashboard lists every active network link
+     (USB tethering, Wi-Fi, Ethernet) with its speed and latency.
+  2. Press  "Bond All Links".
+       - The local proxy starts:  HTTP 127.0.0.1:8811, SOCKS5 127.0.0.1:8812
+       - The Windows system proxy is switched on, so browsers and most
+         apps automatically use the bonded connection.
+  3. Browse normally. Traffic is spread across all healthy links, and a
+     link that dies is skipped instantly (and retried later on its own).
+  4. Press  "Stop Bonding"  (or just close the window) to go back - your
+     previous proxy settings are restored exactly as they were.
+
+  Per-link counters in the table show requests, download and upload
+  per connection. "Rescan Links" re-reads adapters, "Probe Now" re-tests
+  the internet connectivity of each link.
+
+
+---------------------------------------------------------------
+ VERIFYING THE SETUP (optional)
+---------------------------------------------------------------
+
+  From the NetBond folder:
+
+      python tests\verify_headless.py
+
+  Expect the final line:  RESULT: ALL CHECKS PASSED
+
+      python tests\gui_smoke.py
+
+  Expect:  RESULT: GUI SMOKE PASSED
+  (This one opens and closes the window, briefly enabling and then
+  restoring the system proxy.)
+
+
+---------------------------------------------------------------
+ TROUBLESHOOTING
+---------------------------------------------------------------
+
+  * "python is not recognized"
+      Python is not on PATH - set it up again ticking "Add python.exe to
+      PATH", or use the full path:  C:\Python312\python.exe -m netbond
+
+  * Port 8811/8812 already in use
+      Change the ports in the dashboard before pressing Bond, or stop
+      the program that is holding them.
+
+  * SmartScreen says "Windows protected your PC" (only for .exe builds)
+      More info  ->  Run anyway. (Unsigned app, normal for open source.)
+
+  * Internet looks broken after a crash while bonded
+      Settings -> Network & Internet -> Proxy -> turn "Use a proxy server"
+      off (NetBond restores this automatically on a normal stop/close).
+
+  * App opens but shows "No usable links"
+      Connect your tether/Wi-Fi/Ethernet first, then press "Rescan Links".
+
+
+---------------------------------------------------------------
+ UPLOADING TO GITHUB (quick version - details in E:\NetBond\GITHUB.md)
+---------------------------------------------------------------
+
+  1. Create an empty repository at  https://github.com/new
+  2. Open a command prompt and run these lines one by one:
+
+      cd /d E:\NetBond
+      git init
+      git add .
+      git commit -m "NetBond v1.0.0 - bond all internet links behind one local proxy"
+      git branch -M main
+      git remote add origin https://github.com/YOUR_USERNAME/NetBond.git
+      git push -u origin main
+
+  Or drag-and-drop the E:\NetBond contents on github.com ->
+  New repository -> "Upload files".
+
+  After cloning elsewhere, only Python 3.10+ is needed - nothing else to
+  set up; the app uses the standard library only.
+
+================================================================
